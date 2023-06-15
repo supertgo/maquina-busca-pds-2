@@ -64,6 +64,15 @@ void get_colleted_inverted_index(std::map<std::string, std::map<std::string, int
   }
 }
 
+bool containsAllWords(const std::vector<std::string>& words, const std::map<std::string, std::map<std::string, int>>& inverted_index, const std::string& document) {
+  for (const std::string& word : words) {
+    if (inverted_index.count(word) == 0 || inverted_index.at(word).count(document) == 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
 int main() {
   std::map<std::string, std::map<std::string, int>> inverted_index;
   get_colleted_inverted_index(inverted_index);
@@ -73,13 +82,16 @@ int main() {
   std::getline(std::cin, input);
   std::vector<std::string> words = split_into_words(input);
   std::multimap<std::string, std::pair<std::string, int>> wordDocuments;
+  std::map<std::string, std::pair<std::string, int>> filteredDocuments;
 
   for (const std::string &word : words) {
     if (inverted_index.count(word) > 0) {
       for (const auto &docCountPair : inverted_index[word]) {
         const std::string &document = docCountPair.first;
         int count = docCountPair.second;
-        wordDocuments.emplace(word, std::make_pair(document, count));
+        if(containsAllWords(words, inverted_index, document)){
+          wordDocuments.emplace(word, std::make_pair(document, count));
+        }
       }
     }
   }
@@ -94,13 +106,24 @@ int main() {
   std::cout << "Resultado:" << std::endl;
 
   std::string currentWord;
+  std::map<std::string, int> ranking;
   bool firstPair = true;
   for (const auto &wordDocPair : sortedDocuments) {
     const std::string &word = wordDocPair.first;
     const std::string &document = wordDocPair.second.first;
     int count = wordDocPair.second.second;
 
-    if (word != currentWord) {
+  if (ranking.find(document) != ranking.end()) {
+    ranking[document] += count;
+  } else {
+    ranking[document] = count;
+  }
+
+  for (const auto &entry : ranking) {
+  std::cout << entry.first /*<< ": " << entry.second*/ << std::endl;
+}
+
+    /*if (word != currentWord) {
       if (!firstPair) {
         std::cout << std::endl;
       }
@@ -112,8 +135,9 @@ int main() {
     }
 
     std::cout << "(" << document << ".txt, " << count << ")";
-    firstPair = false;
+    firstPair = false;*/
   }
   std::cout << std::endl;
   return 0;
 }
+
