@@ -89,7 +89,8 @@ int main() {
       for (const auto &docCountPair : inverted_index[word]) {
         const std::string &document = docCountPair.first;
         int count = docCountPair.second;
-        if(containsAllWords(words, inverted_index, document)){
+        if(containsAllWords(words, inverted_index, document) &&
+           wordDocuments.find(docCountPair.first) == wordDocuments.end()){
           wordDocuments.emplace(word, std::make_pair(document, count));
         }
       }
@@ -113,30 +114,17 @@ int main() {
     const std::string &document = wordDocPair.second.first;
     int count = wordDocPair.second.second;
 
-  if (ranking.find(document) != ranking.end()) {
-    ranking[document] += count;
-  } else {
-    ranking[document] = count;
+    if (ranking.find(document) != ranking.end()) {
+      ranking[document] += count;
+    } else {
+      ranking[document] = count;
+    }
   }
 
   for (const auto &entry : ranking) {
-  std::cout << entry.first /*<< ": " << entry.second*/ << std::endl;
-}
-
-    /*if (word != currentWord) {
-      if (!firstPair) {
-        std::cout << std::endl;
-      }
-      std::cout << word << ": ";
-      currentWord = word;
-      firstPair = true;
-    } else {
-      std::cout << ", ";
-    }
-
-    std::cout << "(" << document << ".txt, " << count << ")";
-    firstPair = false;*/
+  std::cout << entry.first << ": " << entry.second << std::endl;
   }
+
   std::cout << std::endl;
   return 0;
 }
