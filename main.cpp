@@ -20,6 +20,18 @@ std::string keep_alphabetic_characters(const char *input) {
   return output;
 }
 
+std::string keep_alphabetic_characters(const std::string &input) {
+  std::string output;
+
+  for (char ch : input) {
+    if (std::isalpha(ch)) {
+      output += ch;
+    }
+  }
+
+  return output;
+}
+
 std::string to_lower(const std::string &input) {
   std::string output = input;
   std::transform(output.begin(), output.end(), output.begin(),
@@ -40,7 +52,8 @@ std::vector<std::string> split_into_words(const std::string &line) {
   return words;
 }
 
-void get_colleted_inverted_index(std::map<std::string, std::map<std::string, int>>& inverted_index) {
+void get_colleted_inverted_index(
+    std::map<std::string, std::map<std::string, int>> &inverted_index) {
   for (int i = 1; i <= MAX_FILE_NUMBERS; i++) {
     char palavra[1000];
     FILE *file;
@@ -74,46 +87,49 @@ int main() {
   std::vector<std::string> words = split_into_words(input);
   std::multimap<std::string, std::pair<std::string, int>> wordDocuments;
 
-  for (const std::string &word : words) {
-    if (inverted_index.count(word) > 0) {
-      for (const auto &docCountPair : inverted_index[word]) {
-        const std::string &document = docCountPair.first;
-        int count = docCountPair.second;
-        wordDocuments.emplace(word, std::make_pair(document, count));
+  std::map<std::string, int> documentHits;
+
+  for (int i = 1; i <= MAX_FILE_NUMBERS; i++) {
+    std::string document = "d" + std::to_string(i);
+    bool containsAllWords =
+        true;
+
+    for (const std::string &word : words) {
+      std::string normalized = keep_alphabetic_characters(word);
+      std::string key = to_lower(normalized);
+
+      if (!key.empty() && inverted_index[key].count(document) == 0) {
+        containsAllWords = false;
+        break;
+      }
+    }
+
+    if (containsAllWords) {
+      for (const std::string &word : words) {
+        std::string normalized = keep_alphabetic_characters(word);
+        std::string key = to_lower(normalized);
+
+        if (!key.empty()) {
+          int count = inverted_index[key][document];
+          documentHits[document] += count;
+        }
       }
     }
   }
 
-  std::vector<std::pair<std::string, std::pair<std::string, int>>>
-      sortedDocuments(wordDocuments.begin(), wordDocuments.end());
+  std::vector<std::pair<std::string, int>> sortedDocuments(documentHits.begin(),
+                                                           documentHits.end());
   std::sort(sortedDocuments.begin(), sortedDocuments.end(),
-            [](const auto &lhs, const auto &rhs) {
-              return lhs.second.second > rhs.second.second;
+            [](const auto &a, const auto &b) {
+              if (a.second == b.second) {
+                return a.first < b.first;
+              }
+              return a.second > b.second;
             });
 
-  std::cout << "Resultado:" << std::endl;
-
-  std::string currentWord;
-  bool firstPair = true;
-  for (const auto &wordDocPair : sortedDocuments) {
-    const std::string &word = wordDocPair.first;
-    const std::string &document = wordDocPair.second.first;
-    int count = wordDocPair.second.second;
-
-    if (word != currentWord) {
-      if (!firstPair) {
-        std::cout << std::endl;
-      }
-      std::cout << word << ": ";
-      currentWord = word;
-      firstPair = true;
-    } else {
-      std::cout << ", ";
-    }
-
-    std::cout << "(" << document << ".txt, " << count << ")";
-    firstPair = false;
+  for (const auto &doc : sortedDocuments) {
+    std::cout << "Documento: " << doc.first << ", Hits: " << doc.second
+              << std::endl;
   }
-  std::cout << std::endl;
   return 0;
 }
