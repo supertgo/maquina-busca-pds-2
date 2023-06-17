@@ -1,11 +1,22 @@
 #include <algorithm>
 #include <cctype>
+#include <dirent.h>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
+
 #define MAX_FILE_NUMBERS 30
+
+struct InvertedIndexResult {
+  bool success;
+  int numDocuments;
+  std::set<std::string> documents;
+};
 
 std::string keep_alphabetic_characters(const char *input) {
   std::string output;
@@ -52,35 +63,61 @@ std::vector<std::string> split_into_words(const std::string &line) {
   return words;
 }
 
-void get_colleted_inverted_index(
+bool endsWith(const std::string &str, const std::string &suffix) {
+  return str.size() >= suffix.size() &&
+         str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+InvertedIndexResult get_colleted_inverted_index(
     std::map<std::string, std::map<std::string, int>> &inverted_index) {
-  for (int i = 1; i <= MAX_FILE_NUMBERS; i++) {
-    char palavra[1000];
-    FILE *file;
-    std::string file_name = "./documentos/d" + std::to_string(i);
-    file_name = file_name + ".txt";
-    file = fopen(file_name.c_str(), "rt");
+  InvertedIndexResult result;
+  result.success = false;
+  result.numDocuments = 0;
 
-    if (file == NULL) {
-      std::cout << "Não foi possivel localizar o arquivo" << std::endl;
-      return;
-    }
+  std::string folderPath = "documentos/";
+  DIR *directory;
+  struct dirent *entry;
 
-    while (fscanf(file, "%s", palavra) != EOF) {
-      std::string normalized = keep_alphabetic_characters(palavra);
-      std::string key = to_lower(normalized);
+  directory = opendir(folderPath.c_str());
+  if (directory == nullptr) {
+    std::cerr << "Falha ao abrir o diretório: " << folderPath << std::endl;
+    return result;
+  }
 
-      if (!key.empty()) {
-        inverted_index[key]["d" + std::to_string(i)]++;
+  while ((entry = readdir(directory)) != nullptr) {
+    std::string filename = entry->d_name;
+    if (endsWith(filename, ".txt")) {
+      std::string filePath = folderPath + "/" + filename;
+      FILE *file = fopen(filePath.c_str(), "rt");
+
+      if (file == NULL) {
+        std::cerr << "Falha ao abrir o arquivo em: " << filePath << std::endl;
+        continue;
       }
+
+      char palavra[1000];
+      while (fscanf(file, "%s", palavra) != EOF) {
+        std::string normalized = keep_alphabetic_characters(palavra);
+        std::string key = to_lower(normalized);
+
+        if (!key.empty()) {
+          inverted_index[key][filename]++;
+        }
+      }
+
+      fclose(file);
+      result.documents.insert(filename);
+      result.numDocuments++;
     }
   }
+
+  closedir(directory);
+  return result;
 }
 
 int main() {
   std::map<std::string, std::map<std::string, int>> inverted_index;
-  get_colleted_inverted_index(inverted_index);
-
+  InvertedIndexResult result = get_colleted_inverted_index(inverted_index);
   std::cout << "Coloque a entrada: ";
   std::string input;
   std::getline(std::cin, input);
@@ -89,47 +126,45 @@ int main() {
 
   std::map<std::string, int> documentHits;
 
-  for (int i = 1; i <= MAX_FILE_NUMBERS; i++) {
-    std::string document = "d" + std::to_string(i);
-    bool containsAllWords =
-        true;
+  for (const std::string document: result.documents) {
+      bool containsAllWords = true;
 
-    for (const std::string &word : words) {
-      std::string normalized = keep_alphabetic_characters(word);
-      std::string key = to_lower(normalized);
-
-      if (!key.empty() && inverted_index[key].count(document) == 0) {
-        containsAllWords = false;
-        break;
-      }
-    }
-
-    if (containsAllWords) {
       for (const std::string &word : words) {
         std::string normalized = keep_alphabetic_characters(word);
         std::string key = to_lower(normalized);
 
-        if (!key.empty()) {
-          int count = inverted_index[key][document];
-          documentHits[document] += count;
+        if (!key.empty() && inverted_index[key].count(document) == 0) {
+          containsAllWords = false;
+          break;
+        }
+      }
+
+      if (containsAllWords) {
+        for (const std::string &word : words) {
+          std::string normalized = keep_alphabetic_characters(word);
+          std::string key = to_lower(normalized);
+
+          if (!key.empty()) {
+            int count = inverted_index[key][document];
+            documentHits[document] += count;
+          }
         }
       }
     }
-  }
 
-  std::vector<std::pair<std::string, int>> sortedDocuments(documentHits.begin(),
-                                                           documentHits.end());
-  std::sort(sortedDocuments.begin(), sortedDocuments.end(),
-            [](const auto &a, const auto &b) {
-              if (a.second == b.second) {
-                return a.first < b.first;
-              }
-              return a.second > b.second;
-            });
+    std::vector<std::pair<std::string, int>> sortedDocuments(
+        documentHits.begin(), documentHits.end());
+    std::sort(sortedDocuments.begin(), sortedDocuments.end(),
+              [](const auto &a, const auto &b) {
+                if (a.second == b.second) {
+                  return a.first < b.first;
+                }
+                return a.second > b.second;
+              });
 
-  for (const auto &doc : sortedDocuments) {
-    std::cout << "Documento: " << doc.first << ", Hits: " << doc.second
-              << std::endl;
+    for (const auto &doc : sortedDocuments) {
+      std::cout << "Documento: " << doc.first << ", Hits: " << doc.second
+                << std::endl;
+    }
+    return 0;
   }
-  return 0;
-}
