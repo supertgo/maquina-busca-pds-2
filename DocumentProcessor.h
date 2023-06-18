@@ -9,7 +9,7 @@
 #include <vector>
 
 /**
- * @brief Classe responsavel gerenciamento dos documentos com a entrada do
+ * @brief Classe responsavel pelo gerenciamento dos documentos com a entrada do
  * usuário
  */
 class DocumentProcessor {
