@@ -37,7 +37,6 @@ DocumentProcessor::processDocuments(const std::string &input) {
         std::string normalized = stringUtil_.keepAlphabeticCharacters(palavra);
         std::string key = stringUtil_.toLower(normalized);
 
-
         if (!key.empty()) {
           invertedIndex_[key][filename]++;
         }
@@ -52,44 +51,47 @@ DocumentProcessor::processDocuments(const std::string &input) {
   closedir(directory);
   result.success = true;
   words_ = fileUtil_.splitIntoWords(input);
-  documentsName = result.documents;
+  documentsName_ = result.documents;
 
   return result;
 }
 
-void DocumentProcessor::printDocumentHits() const {
+void DocumentProcessor::handleUserInput() {
   std::map<std::string, int> documentHits;
 
-  for (const std::string &document : documentsName) {
+  for (const std::string &document : documentsName_) {
     bool containsAllWords = true;
+    std::set<std::string> uniqueWords(words_.begin(), words_.end());
 
-    std::cout << words_.size() << std::endl;
-    for (const std::string &word : words_) {
-
+    for (const std::string &word : uniqueWords) {
       std::string normalized = stringUtil_.keepAlphabeticCharacters(word);
       std::string key = stringUtil_.toLower(normalized);
 
-      if (!key.empty() && invertedIndex_.at(key).count(document) == 0) {
+      if (key.empty() || invertedIndex_.find(key) == invertedIndex_.end() ||
+          invertedIndex_.at(key).count(document) == 0) {
         containsAllWords = false;
         break;
       }
     }
 
     if (containsAllWords) {
-      for (const std::string &word : words_) {
+      for (const std::string &word : uniqueWords) {
         std::string normalized = stringUtil_.keepAlphabeticCharacters(word);
         std::string key = stringUtil_.toLower(normalized);
-
-        if (!key.empty()) {
-          int count = invertedIndex_.at(key).at(document);
-          documentHits[document] += count;
-        }
+        int count = invertedIndex_.at(key).at(document);
+        documentHits[document] += count;
       }
     }
   }
 
   std::vector<std::pair<std::string, int>> sortedDocuments(documentHits.begin(),
                                                            documentHits.end());
+
+  sortDocuments(sortedDocuments);
+}
+
+void DocumentProcessor::sortDocuments(
+    std::vector<std::pair<std::string, int>> &sortedDocuments) {
   std::sort(sortedDocuments.begin(), sortedDocuments.end(),
             [](const auto &a, const auto &b) {
               if (a.second == b.second) {
@@ -97,9 +99,13 @@ void DocumentProcessor::printDocumentHits() const {
               }
               return a.second > b.second;
             });
+}
 
+void DocumentProcessor::printDocumentHits(
+    std::vector<std::pair<std::string, int>> sortedDocuments) const {
   for (const auto &doc : sortedDocuments) {
     std::cout << "Document: " << doc.first << ", Hits: " << doc.second
               << std::endl;
   }
 }
+

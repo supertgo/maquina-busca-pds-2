@@ -13,7 +13,7 @@ int main() {
       processor.processDocuments(input);
 
   if (result.success) {
-    processor.printDocumentHits();
+    processor.handleUserInput();
   }
 
   return 0;

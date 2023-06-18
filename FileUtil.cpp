@@ -19,14 +19,3 @@ std::vector<std::string> FileUtil::splitIntoWords(const std::string& line) {
     return words;
 }
 
-std::string FileUtil::readFileContent(const std::string& filePath) {
-    std::ifstream file(filePath);
-    if (!file.is_open()) {
-        std::cerr << "Falha ao abrir o arquivo: " << filePath << std::endl;
-        return "";
-    }
-    std::ostringstream oss;
-    oss << file.rdbuf();
-    return oss.str();
-}
-
