@@ -56,6 +56,25 @@ DocumentProcessor::processDocuments(const std::string &input) {
   return result;
 }
 
+void DocumentProcessor::sortDocuments(
+    std::vector<std::pair<std::string, int>> &sortedDocuments) {
+  std::sort(sortedDocuments.begin(), sortedDocuments.end(),
+            [](const auto &a, const auto &b) {
+              if (a.second == b.second) {
+                return a.first < b.first;
+              }
+              return a.second > b.second;
+            });
+}
+
+void DocumentProcessor::printDocumentHits(
+    std::vector<std::pair<std::string, int>> sortedDocuments) const {
+  for (const auto &doc : sortedDocuments) {
+    std::cout << "Document: " << doc.first << ", Hits: " << doc.second
+              << std::endl;
+  }
+}
+
 void DocumentProcessor::handleUserInput() {
   std::map<std::string, int> documentHits;
 
@@ -88,24 +107,6 @@ void DocumentProcessor::handleUserInput() {
                                                            documentHits.end());
 
   sortDocuments(sortedDocuments);
-}
-
-void DocumentProcessor::sortDocuments(
-    std::vector<std::pair<std::string, int>> &sortedDocuments) {
-  std::sort(sortedDocuments.begin(), sortedDocuments.end(),
-            [](const auto &a, const auto &b) {
-              if (a.second == b.second) {
-                return a.first < b.first;
-              }
-              return a.second > b.second;
-            });
-}
-
-void DocumentProcessor::printDocumentHits(
-    std::vector<std::pair<std::string, int>> sortedDocuments) const {
-  for (const auto &doc : sortedDocuments) {
-    std::cout << "Document: " << doc.first << ", Hits: " << doc.second
-              << std::endl;
-  }
+  printDocumentHits(sortedDocuments);
 }
 
