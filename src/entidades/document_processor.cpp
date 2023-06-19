@@ -1,4 +1,4 @@
-#include "document_processor.h"
+#include "../../includes/document_processor.h"
 #include <algorithm>
 #include <dirent.h>
 #include <iostream>
