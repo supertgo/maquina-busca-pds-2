@@ -11,14 +11,14 @@ public:
    * @param representa a string que será analisada
    * @param sufixo
    */
-  bool endsWith(const std::string &str, const std::string &suffix);
+  bool EndsWith(const std::string &str, const std::string &suffix);
 
   /**
    * @brief Recebe uma string e retorna um vector de strings separando o
    * parametro em um vector de palavras
    * @param line Conjunto de palavaras digitadas pelo usuário 
    */
-  std::vector<std::string> splitIntoWords(const std::string &line);
+  std::vector<std::string> SplitIntoWords(const std::string &line);
 };
 
 #endif
