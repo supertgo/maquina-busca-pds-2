@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 From: jack@shograf.com (Jack Ritter)
 Subject: Help!!
 
@@ -10,3 +11,17 @@ I'll summarize to the net.
 --------------------------------------------------------
    "If only I had been compiled with the '-g' option."
 ---------------------------------------------------------
+=======
+From: jack@shograf.com (Jack Ritter)
+Subject: Help!!
+
+I need a complete list of all the polygons
+that there are, in order.
+
+I'll summarize to the net.
+
+
+--------------------------------------------------------
+   "If only I had been compiled with the '-g' option."
+---------------------------------------------------------
+>>>>>>> master

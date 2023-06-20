@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 From: jamie@genesis.MCS.COM (James R Groves)
 Subject: FTP for Targa+
 
@@ -6,3 +7,13 @@ of any sites which have useful stuff, or if you have any yourself you want to
 give, let me know via mail. Thanks a LOT! Yayayay!
                                      jamie@ddsw1.mcs.com
 
+=======
+From: jamie@genesis.MCS.COM (James R Groves)
+Subject: FTP for Targa+
+
+I am looking for software to run on my brand new Targa+ 16/32. If anyone knows
+of any sites which have useful stuff, or if you have any yourself you want to
+give, let me know via mail. Thanks a LOT! Yayayay!
+                                     jamie@ddsw1.mcs.com
+
+>>>>>>> master
