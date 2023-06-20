@@ -13,7 +13,7 @@ OBJECTS := $(patsubst $(SRC)/$(LIB)/%.cpp,$(BIN)/%.o,$(wildcard $(SRC)/$(LIB)/*.
 MAIN_OBJECT := $(BIN)/$(MAIN).o
 
 
-##O executavel vpl_execution
+##O executavel tp_execution
 all: $(EXECUTABLE)
 
 # Rodando o executavel 

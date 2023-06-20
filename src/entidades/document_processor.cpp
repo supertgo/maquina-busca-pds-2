@@ -1,4 +1,4 @@
-#include "../../includes/document_processor.h"
+#include "document_processor.h"
 #include <algorithm>
 #include <dirent.h>
 #include <iostream>
@@ -70,7 +70,7 @@ void DocumentProcessor::SortDocuments(
 void DocumentProcessor::PrintDocumentOccurrences(
     std::vector<std::pair<std::string, int>> sorted_documents) const {
   for (const auto &doc : sorted_documents) {
-    std::cout << "Document: " << doc.first /*<< ", Occurrences: " << doc.second
+    std::cout  << doc.first /*<< ", Occurrences: " << doc.second
               */<< std::endl;
   }
 }

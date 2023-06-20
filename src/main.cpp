@@ -1,4 +1,4 @@
-#include "../includes/document_processor.h"
+#include "document_processor.h"
 #include <iostream>
 
 int main() {
